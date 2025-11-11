@@ -1,0 +1,7 @@
+aws_region     = "us-east-1"
+prefix         = "arka"
+environment    = "production"
+vpc_cidr       = "10.0.0.0/16"
+db_username    = "postgres"
+db_password    = "Arka$123" 
+ses_from_email = "juanpabloc200437@gmail.com" 

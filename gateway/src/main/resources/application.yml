@@ -1,0 +1,111 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      # Rutas explícitas (útil para control fino y documentación).
+      routes:
+        - id: inventory
+          uri: lb://inventory-service
+          predicates:
+            - Path=/api/products/**
+
+        - id: orders
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+
+        - id: catalog
+          uri: lb://catalog-service
+          predicates:
+            - Path=/api/catalog/**
+
+        - id: category
+          uri: lb://category-maintainer
+          predicates:
+            - Path=/api/categories/**
+
+        - id: cart
+          uri: lb://cart-service
+          predicates:
+            - Path=/api/carts/**
+
+        - id: provider
+          uri: lb://provider-service
+          predicates:
+            - Path=/api/providers/**
+
+        - id: shipping
+          uri: lb://shipping-service
+          predicates:
+            - Path=/api/shipping/**
+
+        - id: review
+          uri: lb://review-service
+          predicates:
+            - Path=/api/reviews/**
+
+        - id: bff-web
+          uri: lb://catalog-bff-web
+          predicates:
+            - Path=/api/bff/web/**
+
+        - id: bff-mobile
+          uri: lb://catalog-bff-mobile
+          predicates:
+            - Path=/api/bff/mobile/**
+
+        - id: auth
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+
+        - id: notification
+          uri: lb://notification-service
+          predicates:
+            - Path=/api/notifications/**
+
+      # Service discovery: cuando esté activo, el gateway también descubrirá dinámicamente servicios
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+      # Opciones globales (ejemplos, ajustar según necesidades)
+      default-filters:
+        # Añade cabeceras útiles, permitir trazabilidad, y un timeout por defecto si quieres.
+        - AddRequestHeader=X-Request-Source, Gateway
+        - AddRequestHeader=X-Forwarded-Proto, https
+
+# Eureka (service discovery)
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+
+# Logging y observabilidad básicos
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    reactor.netty.http.server.HttpServer: INFO
+
+# CORS / Seguridad (ejemplo mínimo). Ajusta en función de tu estrategia de autenticación.
+# Si usas JWT en gateway, implementa un GlobalFilter que valide tokens y descomenta/configura aquí o en Java config.
+#security:
+#  oauth2:
+#    resourceserver:
+#      jwt:
+#        jwk-set-uri: https://your-auth-provider/.well-known/jwks.json
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always

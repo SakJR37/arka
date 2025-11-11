@@ -1,0 +1,301 @@
+version: '3.8'
+
+services:
+  # ===================== BASES DE DATOS =====================
+  postgres-inventory:
+    image: postgres:14
+    container_name: postgres-inventory
+    environment:
+      POSTGRES_DB: inventorydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"
+    networks:
+      - arka-net
+
+  postgres-order:
+    image: postgres:14
+    container_name: postgres-order
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5433:5432"
+    networks:
+      - arka-net
+
+  postgres-cart:
+    image: postgres:14
+    container_name: postgres-cart
+    environment:
+      POSTGRES_DB: cartdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5434:5432"
+    networks:
+      - arka-net
+
+  postgres-provider:
+    image: postgres:14
+    container_name: postgres-provider
+    environment:
+      POSTGRES_DB: providerdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5435:5432"
+    networks:
+      - arka-net
+
+  postgres-catalog:
+    image: postgres:14
+    container_name: postgres-catalog
+    environment:
+      POSTGRES_DB: catalogdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5436:5432"
+    networks:
+      - arka-net
+
+  postgres-shipping:
+    image: postgres:14
+    container_name: postgres-shipping
+    environment:
+      POSTGRES_DB: shippingdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5437:5432"
+    networks:
+      - arka-net
+
+  postgres-category:
+    image: postgres:14
+    container_name: postgres-category
+    environment:
+      POSTGRES_DB: categorydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5438:5432"
+    networks:
+      - arka-net
+
+  postgres-auth:
+    image: postgres:14
+    container_name: postgres-auth
+    environment:
+      POSTGRES_DB: authdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5439:5432"
+    networks:
+      - arka-net
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - arka-net
+
+  # ===================== INFRA =====================
+  eureka:
+    build: ./eureka-server
+    container_name: eureka
+    ports:
+      - "8761:8761"
+    depends_on:
+      - postgres-inventory
+    networks:
+      - arka-net
+
+  gateway:
+    build: ./gateway
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  # ===================== MICROSERVICIOS =====================
+  inventory:
+    build: ./inventory-service
+    container_name: inventory
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres-inventory
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-inventory:5432/inventorydb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  order:
+    build: ./order-service
+    container_name: order
+    ports:
+      - "8082:8082"
+    depends_on:
+      - postgres-order
+      - inventory
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-order:5432/orderdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  catalog:
+    build: ./catalog-service
+    container_name: catalog
+    ports:
+      - "8083:8083"
+    depends_on:
+      - postgres-catalog
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-catalog:5432/catalogdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  category:
+    build: ./category-maintainer
+    container_name: category
+    ports:
+      - "8084:8084"
+    depends_on:
+      - postgres-category
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-category:5432/categorydb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  cart:
+    build: ./cart-service
+    container_name: cart
+    ports:
+      - "8085:8085"
+    depends_on:
+      - postgres-cart
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-cart:5432/cartdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  provider:
+    build: ./provider-service
+    container_name: provider
+    ports:
+      - "8086:8086"
+    depends_on:
+      - postgres-provider
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-provider:5432/providerdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  shipping:
+    build: ./shipping-service
+    container_name: shipping
+    ports:
+      - "8087:8087"
+    depends_on:
+      - postgres-shipping
+      - eureka
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-shipping:5432/shippingdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  notification:
+    build: ./notification-service
+    container_name: notification
+    ports:
+      - "8088:8088"
+    depends_on:
+      - eureka
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  bff-web:
+    build: ./catalog-bff-web
+    container_name: bff-web
+    ports:
+      - "8089:8089"
+    depends_on:
+      - eureka
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  bff-mobile:
+    build: ./catalog-bff-mobile
+    container_name: bff-mobile
+    ports:
+      - "8090:8090"
+    depends_on:
+      - eureka
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+  auth:
+    build: ./auth-service
+    container_name: auth
+    ports:
+      - "8091:8091"
+    depends_on:
+      - eureka
+      - postgres-auth
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-auth:5432/authdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka/
+    networks:
+      - arka-net
+
+# ===================== RED =====================
+networks:
+  arka-net:
+    driver: bridge

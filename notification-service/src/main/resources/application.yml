@@ -1,0 +1,19 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: notification-service
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+# AWS Configuration (use environment variables or AWS credentials)
+aws:
+  region: us-east-1
+  ses:
+    from-email: noreply@arka.com

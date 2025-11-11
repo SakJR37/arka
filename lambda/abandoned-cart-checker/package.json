@@ -1,0 +1,10 @@
+{
+  "name": "abandoned-cart-checker",
+  "version": "1.0.0",
+  "description": "Lambda function to check and notify about abandoned carts",
+  "main": "index.js",
+  "dependencies": {
+    "@aws-sdk/client-sqs": "^3.450.0",
+    "@aws-sdk/client-sns": "^3.450.0"
+  }
+}

@@ -1,0 +1,10 @@
+target/
+*.log
+*.tmp
+*.class
+.idea/
+.vscode/
+*.iml
+docker-compose.override.yml
+.DS_Store
+terraform/.terraform/providers/

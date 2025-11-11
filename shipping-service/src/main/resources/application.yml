@@ -1,0 +1,32 @@
+server:
+  port: 8087
+
+spring:
+  application:
+    name: shipping-service
+  datasource:
+    url: jdbc:postgresql://postgres-shipping:5432/shippingdb
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  lambda:
+    pickup-calculator: ${LAMBDA_PICKUP:arka-shipping-pickup}
+    delivery-calculator: ${LAMBDA_DELIVERY:arka-shipping-delivery}
+    express-calculator: ${LAMBDA_EXPRESS:arka-shipping-express}

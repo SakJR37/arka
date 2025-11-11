@@ -1,0 +1,30 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: cart-service
+  datasource:
+    url: jdbc:postgresql://postgres-cart:5432/cartdb
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  sqs:
+    abandoned-carts-queue-url: ${SQS_ABANDONED_CARTS_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/320214163553/arka-abandoned-carts}
